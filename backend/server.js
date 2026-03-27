@@ -8,14 +8,18 @@
 const express    = require('express');
 const cors       = require('cors');
 const fetch      = require('node-fetch');
+const path       = require('path');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app  = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: '*' }));
 app.use(express.json());
+
+// ── STATIC FILE SERVING (Frontend) ────────────────────────
+app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 // ── Supabase ──────────────────────────────────────────────
 const supabase = createClient(
@@ -426,6 +430,11 @@ Trend A: [specific trend name]
 Trend B: [second specific trend]
 [2-3 sentences]`;
 }
+
+// ── CATCH-ALL ROUTE (Serve Frontend for non-API requests) ──
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`✅ ResearchAI backend running on port ${PORT}`);
